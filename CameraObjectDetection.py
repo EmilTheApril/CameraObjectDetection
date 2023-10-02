@@ -3,8 +3,8 @@ import numpy as np
 import json
 
 #Blue color range
-lowerMask = np.array([110, 170, 20])
-upperMask = np.array([125, 255, 255])
+lowerMask = np.array([90, 20, 20])
+upperMask = np.array([140, 255, 255])
 
 #Red color range (Not working correctly)
 lowerCorners = np.array([0, 0, 0])
@@ -26,7 +26,7 @@ video = cv2.VideoCapture(0)
 i = 0
 
 #"Game loop" Where the magic happens
-while i < 60:
+while True:
     #Saves video as image, success = bool, img = image
     success, img = video.read()
     #Connverts colors to HSV
@@ -45,7 +45,7 @@ while i < 60:
     if len(contours) != 0:
         for contour in contours:
             #Calculates the area of the shape
-            if cv2.contourArea(contour) > 10:
+            if cv2.contourArea(contour) > 50:
                 #Gets the position of the area/box/white shape
                 x, y, w, h = cv2.boundingRect(contour)
                 print("Data: x = {0}, y = {1}, w = {2}, h = {3}".format(x, y, w, h))
@@ -60,14 +60,14 @@ while i < 60:
                 cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
 
     #Saves the data points to a JSON file
-    with open('CameraObjectDetection/data.json', 'w') as outfile:
+    with open('data.json', 'w') as outfile:
         json.dump(savedPoints, outfile)
 
     print(savedPoints)
 
     #Shows the 3 images
     cv2.imshow("mask", mask)
-    cv2.imshow("maskCorner", maskCorner)
+    #cv2.imshow("maskCorner", maskCorner)
     cv2.imshow("webcam", img)
 
     i += 1
