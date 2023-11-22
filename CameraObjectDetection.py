@@ -7,12 +7,12 @@ import math
 #Pointer to webcam
 video = cv2.VideoCapture(0)
 
-hMin = 84
-sMin = 176
-vMin = 117
-hMax = 144
-sMax = 255
-vMax = 216
+hMin = 100
+sMin = 110
+vMin = 86
+hMax = 122
+sMax = 250
+vMax = 198
 blobList = []
 finalBlobList = []
 arrayBlobCount = 0
@@ -36,12 +36,12 @@ def FindBlobs(image, blobIndex, index, width, height):
     else:
         print(f"Blob nr: {blobIndex}, Pixel Count: {len(blobList[blobIndex])}")
 
-while i < 2:
+while i < 3:
     #Turns on camera and saves the image in img
     success, img = video.read()
     
     #Crops the image, to fit the whiteboard
-    croppedImage = img[50:1870, 25:1055]
+    croppedImage = cv2.resize(img, (630, 415))
     
     lower = np.array([hMin, sMin, vMin])
     upper = np.array([hMax, sMax, vMax])
@@ -58,7 +58,7 @@ while i < 2:
     #BloblobList holds all pixel pos
     width, height = erodeImage.shape
     print(erodeImage.shape)
-    if i == 1:
+    if i == 2:
         for y in range(height - 1):
             for x in range(width - 1):
                 if erodeImage[x, y] == 255:
@@ -87,7 +87,7 @@ while i < 2:
 
     #For testing: Makes all small blobs black
     for z in range(len(blobList)):
-        if len(blobList[z]) < 100:
+        if len(blobList[z]) < 70:
             for i in range(len(blobList[z])):
                 erodeImage[blobList[z][i][0], blobList[z][i][1]] = 0  
 
