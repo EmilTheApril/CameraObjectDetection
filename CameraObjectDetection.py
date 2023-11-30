@@ -72,10 +72,10 @@ def find_corners_pivot_rotation_and_scale(points, image):
     overPivot = [(top_left_point[0] + top_right_point[0]) / 2, (top_left_point[1] + top_right_point[1]) / 2]
 
     #width
-    width = math.sqrt((top_left_point[0] - top_right_point[0])**2 + (top_left_point[1] - top_right_point[1])**2) / 10 / 2
+    width = math.sqrt((top_left_point[0] - top_right_point[0])**2 + (top_left_point[1] - top_right_point[1])**2)
 
     #height
-    height = math.sqrt((overPivot[0] - pivot_point[0])**2 + (overPivot[1] - pivot_point[1])**2) * 2 / 10 / 2
+    height = math.sqrt((overPivot[0] - pivot_point[0])**2 + (overPivot[1] - pivot_point[1])**2)
 
     scale = [width * widthMultiplier, height * heightMultiplier]
 
