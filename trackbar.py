@@ -49,6 +49,9 @@ while(True):
     # Create HSV Image and threshold into a range.
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lower, upper)
+
+    cv2.imshow('image2',mask)
+
     output = cv2.bitwise_and(img,img, mask= mask)
 
     # Print if there is a change in HSV value
