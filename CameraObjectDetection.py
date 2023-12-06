@@ -4,29 +4,10 @@ import json
 import time
 import math
 import sys
+import asyncio
+import os.path
 
 sys.setrecursionlimit(10000)
-
-#Pointer to webcam
-video = cv2.VideoCapture(0)
-
-blueColor = [100, 110, 110, 255, 100, 255]
-redColor = [158, 179, 80, 210, 120, 229]
-
-blobList = []
-blobListCorners = []
-finalBlobList = []
-finalBlobListCorners = []
-arrayBlobCount = 0
-arrayBlobCountCorners = 0
-image = None
-imageCorners = None
-widthMultiplier = 0
-heightMultiplier = 0
-tlCorner = []
-
-#Counter
-i = 0
 
 #Function that returns json file ready data
 def BlobResultToJSONReady(pixelArray):
@@ -52,7 +33,7 @@ def FindBlobs(image, blobList, blobIndex, index, width, height):
         print(f"Blob nr: {blobIndex}, Pixel Count: {len(blobList[blobIndex])}")
         return blobList
 
-def find_corners_pivot_rotation_and_scale(points, image):
+def find_corners_pivot_rotation_and_scale(points, image, tlCorner, widthMultiplier, heightMultiplier):
     # Calculate the pivot point (center of mass)
     center_x = sum(point[0] for point in points) / len(points)
     center_y = sum(point[1] for point in points) / len(points)
@@ -86,10 +67,11 @@ def find_corners_pivot_rotation_and_scale(points, image):
 
     rotation = [0, 0, angle_degrees]
 
-    print(tlCorner)
     pos = [(pivot_point[0] - tlCorner[0]) * heightMultiplier, (pivot_point[1] - tlCorner[1]) * widthMultiplier]
 
-    return pos, scale, rotation
+    name = "Ground"
+
+    return name, pos, scale, rotation
 
 def GetCornerPivot(points):
     center_x = sum(point[0] for point in points) / len(points)
@@ -157,7 +139,7 @@ def GrassFireAlgorithm(image, blobList, arrayBlobCount):
                     arrayBlobCount += 1
     return blobList, image, arrayBlobCount
 
-def AddBLOBsToFinalBLOBList(image, threshold, finalBlobList):
+def AddBLOBsToFinalBLOBList(blobList, image, threshold, finalBlobList):
     for z in range(len(blobList)):
         if len(blobList[z]) >= threshold:
             finalBlobList.append(blobList[z])
@@ -189,43 +171,87 @@ def PrintFinalResults(finalBlobList):
     for i in range(len(finalBlobList)):
         print(f"Blob nr: {i}, Pixel Count: {len(finalBlobList[i])}")
 
-while i < 100:
-    #Turns on camera and saves the image in img
-    success, img = video.read()
+def RunPython():
+    #Pointer to webcam
+    video = cv2.VideoCapture(0)
 
-    cv2.imshow("img", TakePictureAndApplyEffects(img, blueColor))
-    cv2.imshow("img2", TakePictureAndApplyEffects(img, redColor))
+    blueColor = [100, 110, 110, 255, 100, 255]
+    redColor = [158, 179, 80, 210, 120, 229]
 
-    if i == 99:
-        image = TakePictureAndApplyEffects(img, blueColor)
-        imageCorners = TakePictureAndApplyEffects(img, redColor)
-        blobList, image, arrayBlobCount = GrassFireAlgorithm(image, blobList, arrayBlobCount)
-        blobListCorners, imageCorners, arrayBlobCountCorners = GrassFireAlgorithm(imageCorners, blobListCorners, arrayBlobCountCorners)
+    blobList = []
+    blobListCorners = []
+    finalBlobList = []
+    finalBlobListCorners = []
+    arrayBlobCount = 0
+    arrayBlobCountCorners = 0
+    image = None
+    imageCorners = None
+    widthMultiplier = 0
+    heightMultiplier = 0
+    tlCorner = []
 
-        #For final product
-        #finalBlobList, image = AddBLOBsToFinalBLOBList(image, 70, finalBlobList)
+    #Counter
+    i = 0
 
-        #For testing
-        finalBlobList, image = AddBLOBsToFinalBLOBListTesting(blobList, image, 70, finalBlobList, "ResultWithAllBlobs.png")
-        finalBlobListCorners, imageCorners = AddBLOBsToFinalBLOBListTesting(blobListCorners, imageCorners, 250, finalBlobListCorners, "ResultWithAllBlobsCornor.png")
+    while i < 4:
+        #Turns on camera and saves the image in img
+        success, img = video.read()
 
-        widthMultiplier, heightMultiplier, tlCorner = CornerPointsScreenScaleConverter(finalBlobListCorners)
+        if i == 3:
+            image = TakePictureAndApplyEffects(img, blueColor)
+            imageCorners = TakePictureAndApplyEffects(img, redColor)
+            blobList, image, arrayBlobCount = GrassFireAlgorithm(image, blobList, arrayBlobCount)
+            blobListCorners, imageCorners, arrayBlobCountCorners = GrassFireAlgorithm(imageCorners, blobListCorners, arrayBlobCountCorners)
 
-    i += 1
-    cv2.waitKey(1)
+            #For final product
+            #finalBlobList, image = AddBLOBsToFinalBLOBList(image, 70, finalBlobList)
 
-#Print the final blobs pixel sizes and how many there are
-PrintFinalResults(finalBlobList)
-PrintFinalResults(finalBlobListCorners)
+            #For testing
+            finalBlobList, image = AddBLOBsToFinalBLOBListTesting(blobList, image, 70, finalBlobList, "ResultWithAllBlobs.png")
+            finalBlobListCorners, imageCorners = AddBLOBsToFinalBLOBListTesting(blobListCorners, imageCorners, 250, finalBlobListCorners, "ResultWithAllBlobsCornor.png")
 
-#For testing: Saves the image of all blobs that got colored white again and are the final blobs
-cv2.imwrite("FinalBLOBs.png", image)
-cv2.imwrite("FinalCorners.png", imageCorners)
-cv2.imwrite("Final.png", imageCorners + image)
+            widthMultiplier, heightMultiplier, tlCorner = CornerPointsScreenScaleConverter(finalBlobListCorners)
 
-if(len(finalBlobList) > 0):
-    print(find_corners_pivot_rotation_and_scale(finalBlobList[0], image))
-else:
-    print("No BLOBs found")
+        i += 1
+    
+    #Print the final blobs pixel sizes and how many there are
+    PrintFinalResults(finalBlobList)
 
-#Save blobs as json file
+    outputList = []
+    output_path = os.getcwd() + "/Assets/data.json"
+
+    if(len(finalBlobList) > 0):
+        for i in range(len(finalBlobList)):
+            name, pos, scale, rotation = find_corners_pivot_rotation_and_scale(finalBlobList[i], image, tlCorner, widthMultiplier, heightMultiplier)
+            jsonData = {
+                "name": name,
+                "pos": pos,
+                "scale": scale,
+                "rotation": rotation 
+            }
+            outputList.append(jsonData);
+    else:
+        print("No BLOBs found")
+
+    with open(output_path, "w") as outfile:
+        json.dump(outputList, outfile)
+
+async def CheckIfFileExists():
+    path = os.getcwd() + "/Assets/start.txt"
+    if(os.path.isfile(path)):
+        os.remove(path)
+        return True
+    else:
+        return False
+
+async def main():
+    fileFound = False
+    while fileFound == False:
+        print("Program running")
+
+        fileFound = await CheckIfFileExists()
+
+        await asyncio.sleep(1)
+    RunPython()
+
+asyncio.run(main())
