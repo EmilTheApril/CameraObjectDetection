@@ -7,7 +7,7 @@ import sys
 import asyncio
 import os.path
 
-sys.setrecursionlimit(10000)
+sys.setrecursionlimit(100000)
 
 #Function that returns json file ready data
 def BlobResultToJSONReady(pixelArray):
@@ -175,8 +175,8 @@ def RunPython():
     #Pointer to webcam
     video = cv2.VideoCapture(0)
 
-    blueColor = [90, 144, 60, 255, 0, 255]
-    redColor = [0, 90, 60, 255, 145, 255]
+    blueColor = [100, 132, 124, 255, 0, 255]
+    redColor = [0, 90, 60, 255, 120, 255]
 
     blobList = []
     blobListCorners = []
@@ -196,7 +196,6 @@ def RunPython():
     while i < 4:
         #Turns on camera and saves the image in img
         success, img = video.read()
-
         if i == 3:
             image = TakePictureAndApplyEffects(img, blueColor)
             imageCorners = TakePictureAndApplyEffects(img, redColor)
@@ -208,7 +207,7 @@ def RunPython():
 
             #For testing
             finalBlobList, image = AddBLOBsToFinalBLOBListTesting(blobList, image, 70, finalBlobList, "ResultWithAllBlobs.png")
-            finalBlobListCorners, imageCorners = AddBLOBsToFinalBLOBListTesting(blobListCorners, imageCorners, 250, finalBlobListCorners, "ResultWithAllBlobsCornor.png")
+            finalBlobListCorners, imageCorners = AddBLOBsToFinalBLOBListTesting(blobListCorners, imageCorners, 40, finalBlobListCorners, "ResultWithAllBlobsCornor.png")
 
             widthMultiplier, heightMultiplier, tlCorner = CornerPointsScreenScaleConverter(finalBlobListCorners)
 
@@ -240,7 +239,6 @@ def RunPython():
         json.dump(outputList, outfile)
 
 async def CheckIfFileExists():
-    return True
     path = os.getcwd() + "/Assets/start.txt"
     if(os.path.isfile(path)):
         os.remove(path)
