@@ -175,8 +175,8 @@ def RunPython():
     #Pointer to webcam
     video = cv2.VideoCapture(0)
 
-    blueColor = [100, 110, 110, 255, 100, 255]
-    redColor = [158, 179, 80, 210, 120, 229]
+    blueColor = [90, 144, 60, 255, 0, 255]
+    redColor = [0, 90, 60, 255, 145, 255]
 
     blobList = []
     blobListCorners = []
@@ -217,6 +217,9 @@ def RunPython():
     #Print the final blobs pixel sizes and how many there are
     PrintFinalResults(finalBlobList)
 
+    cv2.imwrite("Objects.png", image)
+    cv2.imwrite("Corners.png", imageCorners)
+
     outputList = []
     output_path = os.getcwd() + "/Assets/data.json"
 
@@ -237,6 +240,7 @@ def RunPython():
         json.dump(outputList, outfile)
 
 async def CheckIfFileExists():
+    return True
     path = os.getcwd() + "/Assets/start.txt"
     if(os.path.isfile(path)):
         os.remove(path)
