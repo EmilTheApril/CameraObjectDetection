@@ -33,7 +33,7 @@ def FindBlobs(image, blobList, blobIndex, index, width, height):
         print(f"Blob nr: {blobIndex}, Pixel Count: {len(blobList[blobIndex])}")
         return blobList
 
-def find_corners_pivot_rotation_and_scale(points, image, tlCorner, widthMultiplier, heightMultiplier):
+def find_corners_pivot_rotation_and_scale(points, image, tlCorner, widthMultiplier, heightMultiplier, tl, tr, bl, br):
     # Calculate the pivot point (center of mass)
     center_x = sum(point[0] for point in points) / len(points)
     center_y = sum(point[1] for point in points) / len(points)
@@ -98,12 +98,12 @@ def CornerPointsScreenScaleConverter(cornerPoints):
     widthMultiplier = 1920 / ((math.sqrt((tr[0] - tl[0])**2 + (tr[1] - tl[1])**2) + math.sqrt((br[0] - bl[0])**2 + (br[1] - bl[1])**2)) / 2)
     heightMultiplier  = 1080 / ((math.sqrt((bl[0] - tl[0])**2 + (bl[1] - tl[1])**2) + math.sqrt((br[0] - tr[0])**2 + (br[1] - tr[1])**2)) / 2)
 
-    return widthMultiplier, heightMultiplier, tl
+    return widthMultiplier, heightMultiplier, tl, tr, bl, br
     
 
 def TakePictureAndApplyEffects(img, colorHSV):
     #Crops the image, to fit the whiteboard
-    croppedImage = cv2.resize(img, (630, 415))
+    croppedImage = cv2.resize(img, (1920, 1080))
 
     hMin = colorHSV[0]
     hMax = colorHSV[1]
@@ -189,6 +189,9 @@ def RunPython():
     widthMultiplier = 0
     heightMultiplier = 0
     tlCorner = []
+    tr = []
+    bl = []
+    br = []
 
     #Counter
     i = 0
@@ -206,10 +209,10 @@ def RunPython():
             #finalBlobList, image = AddBLOBsToFinalBLOBList(image, 70, finalBlobList)
 
             #For testing
-            finalBlobList, image = AddBLOBsToFinalBLOBListTesting(blobList, image, 70, finalBlobList, "ResultWithAllBlobs.png")
-            finalBlobListCorners, imageCorners = AddBLOBsToFinalBLOBListTesting(blobListCorners, imageCorners, 40, finalBlobListCorners, "ResultWithAllBlobsCornor.png")
+            finalBlobList, image = AddBLOBsToFinalBLOBListTesting(blobList, image, 210, finalBlobList, "ResultWithAllBlobs.png")
+            finalBlobListCorners, imageCorners = AddBLOBsToFinalBLOBListTesting(blobListCorners, imageCorners, 450, finalBlobListCorners, "ResultWithAllBlobsCornor.png")
 
-            widthMultiplier, heightMultiplier, tlCorner = CornerPointsScreenScaleConverter(finalBlobListCorners)
+            widthMultiplier, heightMultiplier, tlCorner, tr, bl, br = CornerPointsScreenScaleConverter(finalBlobListCorners)
 
         i += 1
     
@@ -224,7 +227,7 @@ def RunPython():
 
     if(len(finalBlobList) > 0):
         for i in range(len(finalBlobList)):
-            name, pos, scale, rotation = find_corners_pivot_rotation_and_scale(finalBlobList[i], image, tlCorner, widthMultiplier, heightMultiplier)
+            name, pos, scale, rotation = find_corners_pivot_rotation_and_scale(finalBlobList[i], image, tlCorner, widthMultiplier, heightMultiplier, tlCorner, tr, bl, br)
             jsonData = {
                 "name": name,
                 "pos": pos,
