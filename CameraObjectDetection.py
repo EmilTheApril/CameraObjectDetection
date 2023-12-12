@@ -7,7 +7,7 @@ import sys
 import asyncio
 import os.path
 
-sys.setrecursionlimit(100000)
+sys.setrecursionlimit(1000000)
 
 #Function that returns json file ready data
 def BlobResultToJSONReady(pixelArray):
