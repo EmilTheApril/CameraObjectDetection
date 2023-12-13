@@ -9,13 +9,6 @@ import os.path
 
 sys.setrecursionlimit(1000000)
 
-#Function that returns json file ready data
-def BlobResultToJSONReady(pixelArray):
-    name = "name"
-    pos = [0, 0]
-    scale = [0, 0]
-    rotation = [0, 0, 0]
-
 def FindBlobs(image, blobList, blobIndex, index, width, height):
     pixelCheck = []
     pixelCheck.append([blobList[blobIndex][index][0] + 1, blobList[blobIndex][index][1]])
